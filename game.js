@@ -8,7 +8,7 @@ const state = {
   sceneHistory: [],
   choiceLog: [],
   sceneCount: 0,
-  totalScenes: 4,   // 固定4關
+  totalScenes: 8,   // 固定8關
   xp: 0,
   level: 1,
   achievements: [],
@@ -16,6 +16,92 @@ const state = {
   badChoices: 0,
   streakGood: 0     // 連續好選擇
 };
+
+// ===== localStorage 持久化 =====
+const SAVE_KEY = 'antiscam_save_data';
+const ENDINGS_KEY = 'antiscam_endings_unlocked';
+
+function saveGame() {
+  if (!state.playerIdentity || !state.currentRegion || !state.currentScenario) return;
+  const data = {
+    playerIdentity: state.playerIdentity,
+    currentRegion: state.currentRegion,
+    playerStats: state.playerStats,
+    currentScenarioId: state.currentScenario.id,
+    currentSceneId: state.currentSceneId,
+    sceneHistory: state.sceneHistory,
+    choiceLog: state.choiceLog,
+    sceneCount: state.sceneCount,
+    totalScenes: state.totalScenes,
+    xp: state.xp,
+    level: state.level,
+    achievements: state.achievements,
+    goodChoices: state.goodChoices,
+    badChoices: state.badChoices,
+    streakGood: state.streakGood
+  };
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch (e) { /* ignore quota error */ }
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+function clearSave() {
+  localStorage.removeItem(SAVE_KEY);
+}
+
+function hasSavedGame() {
+  return localStorage.getItem(SAVE_KEY) !== null;
+}
+
+// ===== 結局收集系統 =====
+function getUnlockedEndings() {
+  try {
+    const raw = localStorage.getItem(ENDINGS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function unlockEnding(endingId) {
+  const list = getUnlockedEndings();
+  if (!list.includes(endingId)) {
+    list.push(endingId);
+    localStorage.setItem(ENDINGS_KEY, JSON.stringify(list));
+  }
+}
+
+function getEndingProgressHtml() {
+  const allIds = endings.map(e => e.id);
+  const unlocked = getUnlockedEndings();
+  const total = allIds.length;
+  const count = unlocked.length;
+  const pct = Math.round((count / total) * 100);
+  return `
+    <div class="ending-progress">
+      <h4>🏅 結局收集進度</h4>
+      <div class="ending-progress-bar-wrap">
+        <div class="ending-progress-bar" style="width:${pct}%"></div>
+      </div>
+      <div class="ending-progress-text">已解鎖 ${count} / ${total} 種結局</div>
+      <div class="ending-grid">
+        ${allIds.map(id => {
+          const e = endings.find(ed => ed.id === id);
+          const isUnlocked = unlocked.includes(id);
+          return `<div class="ending-cell ${isUnlocked ? 'unlocked' : 'locked'}">
+            ${isUnlocked ? e.icon : '❓'}
+            <span>${isUnlocked ? e.title : '???'}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
 
 const baseStats = {
   money: 100, alertness: 50, trust: 50, stress: 20,
@@ -194,6 +280,10 @@ function buildIntroScreen() {
         <span class="mission-step">🔒 關卡 2</span>
         <span class="mission-step">🔒 關卡 3</span>
         <span class="mission-step">🔒 關卡 4</span>
+        <span class="mission-step">🔒 關卡 5</span>
+        <span class="mission-step">🔒 關卡 6</span>
+        <span class="mission-step">🔒 關卡 7</span>
+        <span class="mission-step">🔒 關卡 8</span>
       </div>
       <p class="mission-hint">完成所有關卡，解鎖你的反詐等級和成就！</p>
     `;
@@ -244,7 +334,7 @@ function startGame() {
   state.sceneHistory = [];
   state.choiceLog = [];
   state.sceneCount = 0;
-  state.totalScenes = 4;
+  state.totalScenes = 8;
   state.xp = 0;
   state.level = 1;
   state.achievements = [];
@@ -263,14 +353,14 @@ function startGame() {
 
 // ===== 更新關卡點（Stage dots）=====
 function updateStageDots(current) {
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 8; i++) {
     const dot = document.getElementById('stage-' + i);
     if (!dot) continue;
     dot.className = 'stage-dot' + (i < current ? ' done' : i === current ? ' active' : '');
   }
   const label = document.getElementById('stageLabel');
   if (label && current >= 1) {
-    const stageNames = ['', '第一關', '第二關', '第三關', '第四關'];
+    const stageNames = ['', '第一關', '第二關', '第三關', '第四關', '第五關', '第六關', '第七關', '第八關'];
     label.textContent = stageNames[current] || '';
   }
 }
@@ -520,6 +610,7 @@ function handleChoice(choice, scene) {
   checkAchievements(choice, scene);
   applyEffects(choice.effects || {});
   updateAllStatBars();
+  saveGame();  // 每次選擇後自動保存
 
   if (choice.feedback) {
     const fb = document.getElementById('feedbackBox');
@@ -581,6 +672,8 @@ function triggerEnding() {
     unlockAchievement('no_risk');
   }
   const ending = determineEnding();
+  unlockEnding(ending.id);  // 記錄解鎖的結局
+  clearSave();              // 遊戲結束，清除進度存檔
   setTimeout(() => renderEnding(ending), 500);
 }
 
@@ -660,6 +753,12 @@ function renderEnding(ending) {
     <h4>💡 反詐小知識</h4>
     <ul>${ending.advice.map(a => `<li>${a}</li>`).join('')}</ul>`;
 
+  // 結局收集進度
+  const progressEl = document.getElementById('endingProgress');
+  if (progressEl) {
+    progressEl.innerHTML = getEndingProgressHtml();
+  }
+
   showScreen('endingScreen');
 }
 
@@ -732,6 +831,7 @@ function renderReview() {
 // ===== 重新開始 =====
 function restartGame() {
   clearCountdown();
+  clearSave();
   state.playerIdentity = null;
   state.currentRegion = null;
   state.playerStats = {};
@@ -750,12 +850,74 @@ function restartGame() {
   showScreen('startScreen');
 }
 
+// ===== 繼續上次進度 =====
+function continueGame() {
+  const data = loadGame();
+  if (!data) return;
+
+  state.playerIdentity = data.playerIdentity;
+  state.currentRegion = data.currentRegion;
+  state.playerStats = data.playerStats;
+  state.currentSceneId = data.currentSceneId;
+  state.sceneHistory = data.sceneHistory || [];
+  state.choiceLog = data.choiceLog || [];
+  state.sceneCount = data.sceneCount || 0;
+  state.totalScenes = data.totalScenes || 8;
+  state.xp = data.xp || 0;
+  state.level = data.level || 1;
+  state.achievements = data.achievements || [];
+  state.goodChoices = data.goodChoices || 0;
+  state.badChoices = data.badChoices || 0;
+  state.streakGood = data.streakGood || 0;
+
+  // 恢復場景數據
+  const scenarios = scenarioLibrary[state.currentRegion] || [];
+  const scenario = scenarios.find(s => s.id === data.currentScenarioId);
+  if (!scenario) { restartGame(); return; }
+  state.currentScenario = scenario;
+
+  // 恢復 UI
+  updateAllStatBars();
+  updateXPBar();
+  document.getElementById('scenarioTitle').textContent = state.currentScenario.title;
+  showScreen('gameScreen');
+  renderScene(state.currentSceneId);
+}
+
+// ===== 顯示結局收集頁 =====
+function showEndingCollection() {
+  const overlay = document.getElementById('endingCollectionOverlay');
+  const content = document.getElementById('endingCollectionContent');
+  if (!overlay || !content) return;
+  content.innerHTML = getEndingProgressHtml();
+  overlay.style.display = 'flex';
+}
+
+function closeEndingCollection() {
+  const overlay = document.getElementById('endingCollectionOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
 // ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
   const reviewBtn = document.querySelector('#endingScreen .btn-primary');
   if (reviewBtn) {
     reviewBtn.onclick = () => { renderReview(); showScreen('reviewScreen'); };
   }
+
+  // 檢查是否有存檔
+  if (hasSavedGame()) {
+    const btn = document.getElementById('continueBtn');
+    if (btn) btn.style.display = 'inline-block';
+  }
+
+  // 檢查是否有已解鎖結局
+  const unlocked = getUnlockedEndings();
+  if (unlocked.length > 0) {
+    const btn = document.getElementById('endingCollectionBtn');
+    if (btn) btn.style.display = 'inline-block';
+  }
+
   showScreen('startScreen');
 });
 
