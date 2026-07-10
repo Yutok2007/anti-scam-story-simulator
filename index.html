@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>別急先查證 — 反詐騙闖關遊戲</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== 浮動提示（XP、成就）===== -->
+<div class="xp-toast" id="xpToast"></div>
+<div class="achievement-popup" id="achievementPopup"></div>
+
+<!-- ===== 開始頁 ===== -->
+<div id="startScreen" class="screen active">
+  <div class="start-bg">
+    <div class="start-content">
+      <div class="game-logo">🛡️</div>
+      <h1 class="game-title">別急，先查證</h1>
+      <p class="game-subtitle">反詐騙互動闖關遊戲</p>
+      <p class="game-desc">騙子最怕你花3秒鐘查一查。<br>在真實情境中做選擇——你能識破幾關？</p>
+      <div class="game-tags">
+        <span class="tag">🎮 4關闖關模式</span>
+        <span class="tag">⚡ XP 成就系統</span>
+        <span class="tag">🌍 5大地區場景</span>
+      </div>
+      <button class="btn-primary" onclick="showScreen('identityScreen')">開始闖關！</button>
+      <p class="game-note">免登入 · 約 10 分鐘 · 新生必玩</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 身份選擇頁 ===== -->
+<div id="identityScreen" class="screen">
+  <div class="selection-container">
+    <div class="selection-header">
+      <div class="step-indicator">第 1 步 / 2</div>
+      <h2>選擇你的角色</h2>
+      <p>不同身份會遇到不同的騙局套路，影響初始屬性</p>
+    </div>
+    <div class="identity-cards">
+      <div class="identity-card" onclick="selectIdentity('mainland_student')">
+        <div class="card-icon">🎓</div>
+        <h3>中國大陸學生</h3>
+        <p>微信、支付寶、快遞、電商是日常。在境外可能面對語言壓力和身份焦慮，是騙子最愛盯上的目標。</p>
+        <div class="card-tags">
+          <span>微信/支付寶</span>
+          <span>快遞/電商</span>
+          <span>校園環境</span>
+        </div>
+      </div>
+      <div class="identity-card" onclick="selectIdentity('hmt_student')">
+        <div class="card-icon">🏫</div>
+        <h3>港澳台學生</h3>
+        <p>熟悉本地銀行、LINE 和學校電郵。但假銀行短訊、假客服電話依然可以偽裝得非常真實。</p>
+        <div class="card-tags">
+          <span>WhatsApp/LINE</span>
+          <span>銀行 App</span>
+          <span>學校電郵</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 地區選擇頁 ===== -->
+<div id="regionScreen" class="screen">
+  <div class="selection-container">
+    <div class="selection-header">
+      <div class="step-indicator">第 2 步 / 2</div>
+      <h2>選擇你的地圖</h2>
+      <p>不同地區解鎖不同的騙局劇情，每局 4 關</p>
+    </div>
+    <div class="region-cards">
+      <div class="region-card" onclick="selectRegion('mainland_china')">
+        <span class="card-icon">🏙️</span>
+        <h3>中國大陸</h3>
+        <p>快遞釣魚、冒充客服</p>
+        <span class="region-tag">🆓 基礎關卡</span>
+      </div>
+      <div class="region-card" onclick="selectRegion('hong_kong_macao')">
+        <span class="card-icon">🌆</span>
+        <h3>港澳</h3>
+        <p>假銀行短訊、釣魚網站</p>
+        <span class="region-tag">💳 金融場景</span>
+      </div>
+      <div class="region-card" onclick="selectRegion('taiwan')">
+        <span class="card-icon">🏝️</span>
+        <h3>台灣</h3>
+        <p>ATM 解除分期詐騙</p>
+        <span class="region-tag">🏧 高壓場景</span>
+      </div>
+      <div class="region-card" onclick="selectRegion('western_countries')">
+        <span class="card-icon">✈️</span>
+        <h3>歐美</h3>
+        <p>假移民局電話詐騙</p>
+        <span class="region-tag">🌐 語言挑戰</span>
+      </div>
+      <div class="region-card" onclick="selectRegion('southeast_asia')">
+        <span class="card-icon">🌴</span>
+        <h3>東南亞</h3>
+        <p>旅遊訂房釣魚詐騙</p>
+        <span class="region-tag">🧳 旅行場景</span>
+      </div>
+    </div>
+    <button class="btn-back" onclick="showScreen('identityScreen')">← 返回</button>
+  </div>
+</div>
+
+<!-- ===== 個性化開場頁 ===== -->
+<div id="introScreen" class="screen">
+  <div class="intro-container">
+    <div class="intro-badge" id="introBadge"></div>
+    <h2 id="introTitle">你的冒險開始了！</h2>
+    <div class="intro-text" id="introText"></div>
+
+    <!-- 關卡預覽 -->
+    <div class="mission-preview" id="missionPreview">
+      <div class="mission-row">
+        <span class="mission-step active">🔒 關卡 1</span>
+        <span class="mission-step">🔒 關卡 2</span>
+        <span class="mission-step">🔒 關卡 3</span>
+        <span class="mission-step">🔒 關卡 4</span>
+      </div>
+      <p class="mission-hint">完成所有關卡，解鎖你的等級和成就！</p>
+    </div>
+
+    <div class="intro-stats">
+      <h4>初始屬性加成</h4>
+      <div class="mini-stats" id="miniStats"></div>
+    </div>
+    <button class="btn-primary" onclick="startGame()">出發！→</button>
+  </div>
+</div>
+
+<!-- ===== 主遊戲頁 ===== -->
+<div id="gameScreen" class="screen">
+  <div class="game-layout">
+    <!-- 狀態欄 -->
+    <div class="stats-panel">
+
+      <!-- 玩家等級區 -->
+      <div class="player-level-block">
+        <div class="player-level-row">
+          <span id="playerLevel" class="player-level-badge">🔰 Lv.1</span>
+          <span id="playerTitle" class="player-title">新手偵探</span>
+        </div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar" id="xpBar" style="width:0%"></div>
+        </div>
+        <div class="xp-val" id="xpVal">0 XP</div>
+      </div>
+
+      <div class="stats-header">
+        <span id="scenarioTitle" class="scenario-title-small">場景</span>
+        <span id="sceneProgress" class="scene-progress">關卡 1 / 4</span>
+      </div>
+
+      <!-- 關卡進度點 -->
+      <div class="stage-progress">
+        <div class="stage-dot" id="stage-1"></div>
+        <div class="stage-line"></div>
+        <div class="stage-dot" id="stage-2"></div>
+        <div class="stage-line"></div>
+        <div class="stage-dot" id="stage-3"></div>
+        <div class="stage-line"></div>
+        <div class="stage-dot" id="stage-4"></div>
+        <span class="stage-label" id="stageLabel"></span>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-label">💰 金錢</div>
+        <div class="stat-bar-wrap"><div class="stat-bar money-bar" id="bar-money"></div></div>
+        <div class="stat-val" id="val-money">100</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">👁️ 警覺</div>
+        <div class="stat-bar-wrap"><div class="stat-bar alert-bar" id="bar-alertness"></div></div>
+        <div class="stat-val" id="val-alertness">50</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">😰 壓力</div>
+        <div class="stat-bar-wrap"><div class="stat-bar stress-bar" id="bar-stress"></div></div>
+        <div class="stat-val" id="val-stress">20</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">📋 資訊</div>
+        <div class="stat-bar-wrap"><div class="stat-bar info-bar" id="bar-information"></div></div>
+        <div class="stat-val" id="val-information">30</div>
+      </div>
+      <div class="stat-item risk-stat">
+        <div class="stat-label">⚠️ 風險分</div>
+        <div class="stat-bar-wrap"><div class="stat-bar risk-bar" id="bar-riskScore"></div></div>
+        <div class="stat-val" id="val-riskScore">0</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-label">🏠 本地熟悉</div>
+        <div class="stat-bar-wrap"><div class="stat-bar local-bar" id="bar-localFamiliarity"></div></div>
+        <div class="stat-val" id="val-localFamiliarity">50</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">🔤 語言壓力</div>
+        <div class="stat-bar-wrap"><div class="stat-bar lang-bar" id="bar-languagePressure"></div></div>
+        <div class="stat-val" id="val-languagePressure">20</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">🪪 身份焦慮</div>
+        <div class="stat-bar-wrap"><div class="stat-bar id-bar" id="bar-identityAnxiety"></div></div>
+        <div class="stat-val" id="val-identityAnxiety">20</div>
+      </div>
+    </div>
+
+    <!-- 主遊戲區 -->
+    <div class="game-main">
+      <div class="scene-card" id="sceneCard">
+        <div class="scene-type-badge" id="sceneTypeBadge">📱 訊息</div>
+        <div class="scene-visual" id="sceneVisual"></div>
+        <div class="scene-text" id="sceneText"></div>
+        <!-- 倒計時區域 -->
+        <div class="countdown-wrapper" id="countdownWrapper" style="display:none;">
+          <span class="countdown-label">⏱ 限時選擇</span>
+          <div class="countdown-bar-track">
+            <div class="countdown-bar" id="countdownBar" style="width:100%"></div>
+          </div>
+          <span class="countdown-num" id="countdownNum">10</span>
+        </div>
+        <div class="feedback-box" id="feedbackBox" style="display:none"></div>
+      </div>
+      <div class="choices-container" id="choicesContainer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 結局頁（遊戲化）===== -->
+<div id="endingScreen" class="screen">
+  <div class="ending-container">
+    <div class="ending-icon" id="endingIcon"></div>
+    <h2 class="ending-title" id="endingTitle"></h2>
+    <p class="ending-desc" id="endingDesc"></p>
+
+    <!-- 分數展示 -->
+    <div id="endingScore"></div>
+
+    <!-- 數值chips -->
+    <div class="ending-final-stats" id="endingFinalStats"></div>
+
+    <!-- 成就展示 -->
+    <div class="ending-achievements" id="endingAchievements"></div>
+
+    <!-- 反詐小知識 -->
+    <div class="ending-advice" id="endingAdvice"></div>
+
+    <div class="ending-buttons">
+      <button class="btn-primary" onclick="renderReview(); showScreen('reviewScreen')">📋 查看回顧</button>
+      <button class="btn-secondary" onclick="restartGame()">🔄 再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 反詐回顧頁 ===== -->
+<div id="reviewScreen" class="screen">
+  <div class="review-container">
+    <h2>🔍 反詐回顧</h2>
+    <div class="review-content" id="reviewContent"></div>
+    <div class="review-buttons">
+      <button class="btn-primary" onclick="restartGame()">🔄 再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
