@@ -8,7 +8,7 @@ const state = {
   sceneHistory: [],
   choiceLog: [],
   sceneCount: 0,
-  totalScenes: 8,   // 固定8關
+  totalScenes: 6,   // 固定6關
   xp: 0,
   level: 1,
   achievements: [],
@@ -282,8 +282,6 @@ function buildIntroScreen() {
         <span class="mission-step">🔒 關卡 4</span>
         <span class="mission-step">🔒 關卡 5</span>
         <span class="mission-step">🔒 關卡 6</span>
-        <span class="mission-step">🔒 關卡 7</span>
-        <span class="mission-step">🔒 關卡 8</span>
       </div>
       <p class="mission-hint">完成所有關卡，解鎖你的反詐等級和成就！</p>
     `;
@@ -334,7 +332,7 @@ function startGame() {
   state.sceneHistory = [];
   state.choiceLog = [];
   state.sceneCount = 0;
-  state.totalScenes = 8;
+  state.totalScenes = 6;
   state.xp = 0;
   state.level = 1;
   state.achievements = [];
@@ -353,14 +351,14 @@ function startGame() {
 
 // ===== 更新關卡點（Stage dots）=====
 function updateStageDots(current) {
-  for (let i = 1; i <= 8; i++) {
+  for (let i = 1; i <= 6; i++) {
     const dot = document.getElementById('stage-' + i);
     if (!dot) continue;
     dot.className = 'stage-dot' + (i < current ? ' done' : i === current ? ' active' : '');
   }
   const label = document.getElementById('stageLabel');
   if (label && current >= 1) {
-    const stageNames = ['', '第一關', '第二關', '第三關', '第四關', '第五關', '第六關', '第七關', '第八關'];
+    const stageNames = ['', '第一關', '第二關', '第三關', '第四關', '第五關', '第六關'];
     label.textContent = stageNames[current] || '';
   }
 }
@@ -862,7 +860,7 @@ function continueGame() {
   state.sceneHistory = data.sceneHistory || [];
   state.choiceLog = data.choiceLog || [];
   state.sceneCount = data.sceneCount || 0;
-  state.totalScenes = data.totalScenes || 8;
+  state.totalScenes = data.totalScenes || 6;
   state.xp = data.xp || 0;
   state.level = data.level || 1;
   state.achievements = data.achievements || [];

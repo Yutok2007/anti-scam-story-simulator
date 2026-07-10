@@ -21,14 +21,14 @@
       <p class="game-subtitle">反詐騙互動闖關遊戲</p>
       <p class="game-desc">騙子最怕你花3秒鐘查一查。<br>在真實情境中做選擇——你能識破幾關？</p>
       <div class="game-tags">
-        <span class="tag">🎮 8關闖關模式</span>
+        <span class="tag">🎮 6關闖關模式</span>
         <span class="tag">⚡ XP 成就系統</span>
         <span class="tag">🌍 5大地區場景</span>
       </div>
       <button class="btn-primary" onclick="showScreen('identityScreen')">開始闖關！</button>
       <button class="btn-secondary" id="continueBtn" onclick="continueGame()" style="display:none;margin-top:8px;">▶ 繼續上次進度</button>
       <button class="btn-text" onclick="showEndingCollection()" id="endingCollectionBtn" style="display:none;margin-top:8px;">🏅 查看已解鎖結局</button>
-      <p class="game-note">免登入 · 約 15 分鐘 · 新生必玩</p>
+      <p class="game-note">免登入 · 約 12 分鐘 · 新生必玩</p>
     </div>
   </div>
 </div>
@@ -72,7 +72,7 @@
     <div class="selection-header">
       <div class="step-indicator">第 2 步 / 2</div>
       <h2>選擇你的地圖</h2>
-      <p>不同地區解鎖不同的騙局劇情，每局 8 關</p>
+      <p>不同地區解鎖不同的騙局劇情，每局 6 關</p>
     </div>
     <div class="region-cards">
       <div class="region-card" onclick="selectRegion('mainland_china')">
@@ -156,7 +156,7 @@
 
       <div class="stats-header">
         <span id="scenarioTitle" class="scenario-title-small">場景</span>
-        <span id="sceneProgress" class="scene-progress">關卡 1 / 8</span>
+        <span id="sceneProgress" class="scene-progress">關卡 1 / 6</span>
       </div>
 
       <!-- 關卡進度點 -->
@@ -172,10 +172,6 @@
         <div class="stage-dot" id="stage-5"></div>
         <div class="stage-line"></div>
         <div class="stage-dot" id="stage-6"></div>
-        <div class="stage-line"></div>
-        <div class="stage-dot" id="stage-7"></div>
-        <div class="stage-line"></div>
-        <div class="stage-dot" id="stage-8"></div>
         <span class="stage-label" id="stageLabel"></span>
       </div>
 
