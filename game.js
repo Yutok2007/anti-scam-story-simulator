@@ -85,18 +85,18 @@ function getEndingProgressHtml() {
   const pct = Math.round((count / total) * 100);
   return `
     <div class="ending-progress">
-      <h4>🏅 結局收集進度</h4>
+      <h4>${t('endingProgressTitle')}</h4>
       <div class="ending-progress-bar-wrap">
         <div class="ending-progress-bar" style="width:${pct}%"></div>
       </div>
-      <div class="ending-progress-text">已解鎖 ${count} / ${total} 種結局</div>
+      <div class="ending-progress-text">${t('endingProgressText')} ${count} ${t('endingProgressOf')} ${total} ${t('endingProgressEndings')}</div>
       <div class="ending-grid">
         ${allIds.map(id => {
           const e = endings.find(ed => ed.id === id);
           const isUnlocked = unlocked.includes(id);
           return `<div class="ending-cell ${isUnlocked ? 'unlocked' : 'locked'}">
             ${isUnlocked ? e.icon : '❓'}
-            <span>${isUnlocked ? e.title : '???'}</span>
+            <span>${isUnlocked ? tField(e, 'title') : t('endingLocked')}</span>
           </div>`;
         }).join('')}
       </div>
@@ -113,7 +113,13 @@ const baseStats = {
 // ===== XP 與等級系統 =====
 const levelThresholds = [0, 100, 250, 450, 700, 1000];
 const levelTitles = ['新手偵探', '初級反詐師', '反詐達人', '資深鑑定家', '反詐宗師', '傳奇守護者'];
+const levelTitlesEn = ['Rookie Detective', 'Junior Scam Spotter', 'Anti-Scam Pro', 'Senior Investigator', 'Anti-Scam Master', 'Legendary Guardian'];
 const levelIcons = ['🔰', '🥉', '🥈', '🥇', '🏆', '👑'];
+
+function getLevelTitle(level = state.level) {
+  const titles = getCurrentLang() === 'en' ? levelTitlesEn : levelTitles;
+  return titles[Math.max(0, level - 1)] || '';
+}
 
 function addXP(amount, label) {
   state.xp += amount;
@@ -122,7 +128,9 @@ function addXP(amount, label) {
     if (state.xp >= levelThresholds[i]) {
       if (state.level !== i + 1) {
         state.level = i + 1;
-        showXPToast(`⬆️ 升級！你現在是「${levelTitles[i]}」${levelIcons[i]}`, true);
+        showXPToast(getCurrentLang() === 'en'
+          ? `⬆️ Level up! You are now a “${levelTitlesEn[i]}” ${levelIcons[i]}`
+          : `⬆️ 升級！你現在是「${levelTitles[i]}」${levelIcons[i]}`, true);
       }
       break;
     }
@@ -158,19 +166,19 @@ function updateXPBar() {
   if (bar) bar.style.width = pct + '%';
   if (valEl) valEl.textContent = state.xp + ' XP';
   if (lvlEl) lvlEl.textContent = levelIcons[state.level - 1] + ' Lv.' + state.level;
-  if (titleEl) titleEl.textContent = levelTitles[state.level - 1];
+  if (titleEl) titleEl.textContent = getLevelTitle();
 }
 
 // ===== 成就系統 =====
 const achievementDefs = [
-  { id: 'first_good', icon: '🌟', name: '初心者', desc: '第一次做出正確選擇' },
-  { id: 'no_risk', icon: '🛡️', name: '零風險', desc: '全程風險分保持 0' },
-  { id: 'streak3', icon: '🔥', name: '三連好', desc: '連續3次做出好選擇' },
-  { id: 'detective', icon: '🔍', name: '偵探模式', desc: '資訊值達到 80 以上' },
-  { id: 'calm', icon: '🧘', name: '泰山崩前', desc: '壓力場景中選擇了核實' },
-  { id: 'reporter', icon: '📢', name: '熱心市民', desc: '選擇舉報了詐騙' },
-  { id: 'speedrun', icon: '⚡', name: '秒識詐騙', desc: '首個場景即識破詐騙' },
-  { id: 'perfect', icon: '💎', name: '完美通關', desc: '全程 0 損失 0 風險' }
+  { id: 'first_good', icon: '🌟', name: '初心者', nameEn: 'First Step', desc: '第一次做出正確選擇', descEn: 'Made your first safe choice' },
+  { id: 'no_risk', icon: '🛡️', name: '零風險', nameEn: 'Zero Risk', desc: '全程風險分保持 0', descEn: 'Kept the risk score at zero' },
+  { id: 'streak3', icon: '🔥', name: '三連好', nameEn: 'Triple Streak', desc: '連續3次做出好選擇', descEn: 'Made three safe choices in a row' },
+  { id: 'detective', icon: '🔍', name: '偵探模式', nameEn: 'Detective Mode', desc: '資訊值達到 80 以上', descEn: 'Raised information to 80 or above' },
+  { id: 'calm', icon: '🧘', name: '泰山崩前', nameEn: 'Calm Under Pressure', desc: '壓力場景中選擇了核實', descEn: 'Chose to verify under pressure' },
+  { id: 'reporter', icon: '📢', name: '熱心市民', nameEn: 'Community Reporter', desc: '選擇舉報了詐騙', descEn: 'Reported a scam' },
+  { id: 'speedrun', icon: '⚡', name: '秒識詐騙', nameEn: 'Instant Detection', desc: '首個場景即識破詐騙', descEn: 'Spotted the scam in the first scene' },
+  { id: 'perfect', icon: '💎', name: '完美通關', nameEn: 'Perfect Run', desc: '全程 0 損失 0 風險', descEn: 'Finished with zero loss and zero risk' }
 ];
 
 function unlockAchievement(id) {
@@ -178,14 +186,14 @@ function unlockAchievement(id) {
   const def = achievementDefs.find(a => a.id === id);
   if (!def) return;
   state.achievements.push(id);
-  addXP(50, `成就解鎖：${def.name}`);
+  addXP(50, `${t('achievementUnlock')}${tField(def, 'name')}`);
   showAchievementPopup(def);
 }
 
 function showAchievementPopup(def) {
   const el = document.getElementById('achievementPopup');
   if (!el) return;
-  el.innerHTML = `<span class="ach-icon">${def.icon}</span><div><div class="ach-name">成就解鎖！${def.name}</div><div class="ach-desc">${def.desc}</div></div>`;
+  el.innerHTML = `<span class="ach-icon">${def.icon}</span><div><div class="ach-name">${t('achievementUnlock')}${tField(def, 'name')}</div><div class="ach-desc">${tField(def, 'desc')}</div></div>`;
   el.style.opacity = '1';
   el.style.transform = 'translateX(0)';
   clearTimeout(el._timeout);
@@ -226,8 +234,30 @@ function showScreen(id) {
     screen.classList.add('active');
     screen.scrollTop = 0;
     window.scrollTo(0, 0);
+    resetHorizontalScroll();
+    requestAnimationFrame(resetHorizontalScroll);
   }
 }
+
+function resetHorizontalScroll() {
+  document.documentElement.scrollLeft = 0;
+  document.body.scrollLeft = 0;
+  const statsPanel = document.querySelector('.stats-panel');
+  const gameMain = document.querySelector('.game-main');
+  if (statsPanel) statsPanel.scrollLeft = 0;
+  if (gameMain) gameMain.scrollLeft = 0;
+}
+
+// 舊版曾讓語言壓力條與頂部語言工具欄共用 lang-bar 類名。
+// 即使瀏覽器混用了新舊快取，也要在執行時移除會造成全高遮罩的舊類名。
+function normalizeLanguagePressureBar() {
+  const pressureBar = document.getElementById('bar-languagePressure');
+  if (!pressureBar) return;
+  pressureBar.classList.remove('lang-bar');
+  pressureBar.classList.add('language-pressure-bar');
+}
+
+normalizeLanguagePressureBar();
 
 // ===== 選擇身份 =====
 function selectIdentity(identityId) {
@@ -263,12 +293,13 @@ function clampStats() {
 // ===== 構建開場頁 =====
 function buildIntroScreen() {
   applyInitialModifiers();
-  const iName = identityNames[state.playerIdentity];
-  const rName = regionNames[state.currentRegion];
-  const text = (introTexts[state.playerIdentity] || {})[state.currentRegion] || "";
+  const iName = getIdentityName(state.playerIdentity);
+  const rName = getRegionName(state.currentRegion);
+  const introSource = getCurrentLang() === 'en' && typeof introTextsEn !== 'undefined' ? introTextsEn : introTexts;
+  const text = (introSource[state.playerIdentity] || {})[state.currentRegion] || "";
 
   document.getElementById('introBadge').innerHTML = `🎭 ${iName} &nbsp;·&nbsp; 📍 ${rName}`;
-  document.getElementById('introTitle').textContent = '你的冒險開始了！';
+  document.getElementById('introTitle').textContent = t('introTitle');
   document.getElementById('introText').textContent = text;
 
   // 關卡預覽
@@ -276,14 +307,14 @@ function buildIntroScreen() {
   if (missionEl) {
     missionEl.innerHTML = `
       <div class="mission-row">
-        <span class="mission-step done">🔒 關卡 1</span>
-        <span class="mission-step">🔒 關卡 2</span>
-        <span class="mission-step">🔒 關卡 3</span>
-        <span class="mission-step">🔒 關卡 4</span>
-        <span class="mission-step">🔒 關卡 5</span>
-        <span class="mission-step">🔒 關卡 6</span>
+        <span class="mission-step done">🔒 ${t('stageNames')[1]}</span>
+        <span class="mission-step">🔒 ${t('stageNames')[2]}</span>
+        <span class="mission-step">🔒 ${t('stageNames')[3]}</span>
+        <span class="mission-step">🔒 ${t('stageNames')[4]}</span>
+        <span class="mission-step">🔒 ${t('stageNames')[5]}</span>
+        <span class="mission-step">🔒 ${t('stageNames')[6]}</span>
       </div>
-      <p class="mission-hint">完成所有關卡，解鎖你的反詐等級和成就！</p>
+      <p class="mission-hint">${t('missionPreview')}</p>
     `;
   }
 
@@ -296,9 +327,9 @@ function buildIntroScreen() {
   for (const k in regMod) allMods[k] = (allMods[k] || 0) + regMod[k];
 
   const statLabels = {
-    money: '💰 金錢', alertness: '👁️ 警覺', trust: '🤝 信任',
-    stress: '😰 壓力', information: '📋 資訊', localFamiliarity: '🏠 本地熟悉度',
-    languagePressure: '🔤 語言壓力', identityAnxiety: '🪪 身份焦慮', riskScore: '⚠️ 風險分'
+    money: t('statMoney'), alertness: t('statAlertness'), trust: t('statTrust'),
+    stress: t('statStress'), information: t('statInfo'), localFamiliarity: t('statLocal'),
+    languagePressure: t('statLang'), identityAnxiety: t('statIdentity'), riskScore: t('statRisk')
   };
 
   const shown = new Set();
@@ -312,7 +343,7 @@ function buildIntroScreen() {
     miniStats.appendChild(chip);
   }
   if (shown.size === 0) {
-    miniStats.innerHTML = '<div class="mini-stat-chip">標準初始狀態</div>';
+    miniStats.innerHTML = `<div class="mini-stat-chip">${t('standardInit')}</div>`;
   }
 
   showScreen('introScreen');
@@ -322,7 +353,7 @@ function buildIntroScreen() {
 function startGame() {
   const scenarios = scenarioLibrary[state.currentRegion] || [];
   if (scenarios.length === 0) {
-    alert('此地區暫無劇情，請選擇其他地區。');
+    alert(t('noScenario'));
     return;
   }
   const suitable = scenarios.filter(s =>
@@ -343,7 +374,7 @@ function startGame() {
   updateAllStatBars();
   updateXPBar();
   updateStageDots(0);
-  document.getElementById('scenarioTitle').textContent = state.currentScenario.title;
+  document.getElementById('scenarioTitle').textContent = tField(state.currentScenario, 'title');
 
   showScreen('gameScreen');
   renderScene(state.currentScenario.scenes[0].id);
@@ -358,7 +389,7 @@ function updateStageDots(current) {
   }
   const label = document.getElementById('stageLabel');
   if (label && current >= 1) {
-    const stageNames = ['', '第一關', '第二關', '第三關', '第四關', '第五關', '第六關'];
+    const stageNames = t('stageNames');
     label.textContent = stageNames[current] || '';
   }
 }
@@ -371,12 +402,12 @@ function isPressureScene(scene) {
 }
 
 // ===== 倒計時系統 =====
-function startCountdown(scene) {
+function startCountdown(scene, initialSeconds = 10) {
   clearCountdown();
   const wrapper = document.getElementById('countdownWrapper');
   if (!wrapper) return;
   wrapper.style.display = 'flex';
-  countdownSeconds = 10;
+  countdownSeconds = Math.max(1, Math.min(10, initialSeconds));
   updateCountdownDisplay(countdownSeconds);
   countdownTimer = setInterval(() => {
     countdownSeconds--;
@@ -422,18 +453,19 @@ function handleTimeUp(scene) {
     const risk = (c.effects && c.effects.riskScore) || 0;
     if (risk > maxRisk) { maxRisk = risk; worstChoice = c; }
   });
+  const worstText = tText(worstChoice);
   const btns = document.querySelectorAll('.choice-btn');
   btns.forEach(btn => {
     btn.disabled = true;
-    if (btn.textContent.trim() === worstChoice.text.trim()) btn.classList.add('auto-selected');
+    if (btn.textContent.trim() === worstText.trim()) btn.classList.add('auto-selected');
   });
   const fb = document.getElementById('feedbackBox');
-  fb.textContent = '⏰ 時間到！你猶豫了太久，壓力之下做了衝動決定……';
+  fb.textContent = t('timeUpMsg');
   fb.className = 'feedback-box bad';
   fb.style.display = 'block';
   state.choiceLog.push({
-    sceneId: scene.id, choiceId: worstChoice.id, choiceText: worstChoice.text,
-    effects: worstChoice.effects || {}, feedback: '⏰ 限時壓力衝動決定', feedbackType: 'bad'
+    sceneId: scene.id, choiceId: worstChoice.id, choiceText: worstText,
+    effects: worstChoice.effects || {}, feedback: t('timeUpMsg'), feedbackType: 'bad'
   });
   state.badChoices++;
   state.streakGood = 0;
@@ -448,7 +480,12 @@ function handleTimeUp(scene) {
 }
 
 // ===== 渲染場景 =====
-function renderScene(sceneId) {
+function renderScene(sceneId, options = {}) {
+  const countProgress = options.countProgress !== false;
+  const preserveCountdown = options.preserveCountdown === true;
+  const previousCountdown = countdownSeconds;
+  const wasCounting = countdownTimer !== null;
+  const choicesWereDisabled = Array.from(document.querySelectorAll('.choice-btn')).some(button => button.disabled);
   clearCountdown();
   const scenario = state.currentScenario;
   const scene = scenario.scenes.find(s => s.id === sceneId);
@@ -457,12 +494,12 @@ function renderScene(sceneId) {
   state.currentSceneId = sceneId;
 
   // 更新進度（只計非 ending/result 場景）
-  if (scene.type !== 'ending' && scene.type !== 'result') {
+  if (countProgress && scene.type !== 'ending' && scene.type !== 'result') {
     state.sceneCount = Math.min(state.sceneCount + 1, state.totalScenes);
     updateStageDots(state.sceneCount);
   }
 
-  document.getElementById('sceneProgress').textContent = `關卡 ${state.sceneCount} / ${state.totalScenes}`;
+  document.getElementById('sceneProgress').textContent = `${t('sceneProgress')} ${state.sceneCount} / ${state.totalScenes}`;
 
   const sceneCard = document.getElementById('sceneCard');
   sceneCard.className = 'scene-card';
@@ -471,14 +508,14 @@ function renderScene(sceneId) {
 
   const typeBadge = document.getElementById('sceneTypeBadge');
   const typeIcons = {
-    message: '📱 訊息通知', chat: '💬 聊天', phone_call: '📞 來電',
-    email: '📧 電郵', webpage: '🌐 網頁', social_post: '📣 社交貼文',
-    result: '✅ 核實結果', ending: '🏁 通關'
+    message: t('sceneTypeMessage'), chat: t('sceneTypeChat'), phone_call: t('sceneTypePhone'),
+    email: t('sceneTypeEmail'), webpage: t('sceneTypeWebpage'), social_post: t('sceneTypeSocial'),
+    result: t('sceneTypeResult'), ending: t('sceneTypeEnding')
   };
   typeBadge.textContent = typeIcons[scene.type] || scene.type;
 
   if (isPressureScene(scene)) {
-    typeBadge.textContent = '🚨 警報！' + (typeIcons[scene.type] || scene.type);
+    typeBadge.textContent = t('sceneAlert') + (typeIcons[scene.type] || scene.type);
     typeBadge.style.background = 'rgba(248,113,113,0.15)';
     typeBadge.style.color = '#F87171';
   } else {
@@ -487,7 +524,7 @@ function renderScene(sceneId) {
   }
 
   renderVisual(scene, isPressureScene(scene));
-  document.getElementById('sceneText').innerHTML = scene.text ? `<p>${scene.text}</p>` : '';
+  document.getElementById('sceneText').innerHTML = scene.text ? `<p>${tText(scene)}</p>` : '';
 
   const fb = document.getElementById('feedbackBox');
   fb.style.display = 'none';
@@ -496,12 +533,41 @@ function renderScene(sceneId) {
 
   renderChoices(scene);
 
-  if (isPressureScene(scene) && scene.type !== 'ending') {
-    setTimeout(() => startCountdown(scene), 500);
+  // 語言切換只重繪文字，不應讓已提交的選項再次可點。
+  if (choicesWereDisabled && !countProgress) {
+    const lastChoice = [...state.choiceLog].reverse().find(log => log.sceneId === scene.id);
+    document.querySelectorAll('.choice-btn').forEach(button => {
+      button.disabled = true;
+      if (lastChoice && button.dataset.choiceId === lastChoice.choiceId) button.classList.add('selected');
+    });
+    if (lastChoice) {
+      const choice = (scene.choices || []).find(item => item.id === lastChoice.choiceId);
+      if (choice && tField(choice, 'feedback')) {
+        fb.textContent = tField(choice, 'feedback');
+        fb.className = 'feedback-box ' + (choice.feedbackType || 'mid');
+        fb.style.display = 'block';
+      }
+    }
   }
+
+  if (isPressureScene(scene) && scene.type !== 'ending' && !(choicesWereDisabled && !countProgress)) {
+    if (preserveCountdown && wasCounting) startCountdown(scene, previousCountdown);
+    else setTimeout(() => startCountdown(scene), 500);
+  }
+
+  resetHorizontalScroll();
 }
 
 // ===== 渲染視覺 =====
+function tVisualField(obj, field, fallbackKey) {
+  const value = tField(obj, field);
+  const hasEnglishValue = obj && obj[`${field}En`] !== undefined;
+  if (getCurrentLang() === 'en' && !hasEnglishValue && /[\u3400-\u9fff]/.test(String(value))) {
+    return t(fallbackKey);
+  }
+  return value;
+}
+
 function renderVisual(scene, isPressure) {
   const visualEl = document.getElementById('sceneVisual');
   if (!scene.visual) { visualEl.innerHTML = ''; return; }
@@ -510,25 +576,25 @@ function renderVisual(scene, isPressure) {
   if (v.type === 'sms') {
     visualEl.innerHTML = `
       <div class="phone-frame">
-        <div class="header-bar"><span>💬 訊息</span><span>${new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</span></div>
+        <div class="header-bar"><span>💬 ${t('sceneTypeMessage')}</span><span>${new Date().toLocaleTimeString(currentLang === 'en' ? 'en-US' : 'zh-TW',{hour:'2-digit',minute:'2-digit'})}</span></div>
         <div class="sms-bubble">
-          <div class="sms-sender">${escHtml(v.sender)}</div>
-          <div>${escHtml(v.content)}</div>
+          <div class="sms-sender">${escHtml(tVisualField(v, 'sender', 'visualSenderFallback'))}</div>
+          <div>${escHtml(tVisualField(v, 'content', 'visualContentFallback'))}</div>
           ${v.link ? `<div class="sms-link">🔗 ${escHtml(v.link)}</div>` : ''}
         </div>
       </div>`;
   } else if (v.type === 'chat') {
     const msgs = (v.messages || []).map(m => `
       <div class="chat-msg ${m.type}">
-        ${m.type === 'incoming' ? `<div class="chat-name">${escHtml(m.name)}</div>` : ''}
-        <div class="chat-bubble">${escHtml(m.text)}</div>
-        ${m.type === 'outgoing' ? `<div class="chat-name" style="text-align:right">${escHtml(m.name)}</div>` : ''}
+        ${m.type === 'incoming' ? `<div class="chat-name">${escHtml(tVisualField(m, 'name', 'visualSenderFallback'))}</div>` : ''}
+        <div class="chat-bubble">${escHtml(tVisualField(m, 'text', 'visualChatFallback'))}</div>
+        ${m.type === 'outgoing' ? `<div class="chat-name" style="text-align:right">${escHtml(tVisualField(m, 'name', 'visualSenderFallback'))}</div>` : ''}
       </div>`).join('');
     visualEl.innerHTML = `
       <div class="chat-frame">
         <div class="chat-app-header">
           <span class="chat-app-icon">${escHtml(v.appIcon || '💬')}</span>
-          <span class="chat-app-name">${escHtml(v.app || 'Chat')}</span>
+          <span class="chat-app-name">${escHtml(tVisualField(v, 'app', 'visualAppFallback') || (currentLang === 'en' ? 'Chat' : '聊天'))}</span>
         </div>
         ${msgs}
       </div>`;
@@ -537,25 +603,26 @@ function renderVisual(scene, isPressure) {
     visualEl.innerHTML = `
       <div class="phone-call-frame ${dangerClass}">
         <span class="call-icon">📞</span>
-        <div class="call-from">來電</div>
-        <div class="call-name">${escHtml(v.caller || '未知號碼')}</div>
-        <div class="call-msg">${escHtml(v.content || '')}</div>
+        <div class="call-from">${t('sceneTypePhone')}</div>
+        <div class="call-name">${escHtml(tVisualField(v, 'caller', 'visualCallerFallback') || (currentLang === 'en' ? 'Unknown Number' : '未知號碼'))}</div>
+        <div class="call-msg">${escHtml(tVisualField(v, 'content', 'visualContentFallback'))}</div>
       </div>`;
   } else if (v.type === 'warning_page') {
     visualEl.innerHTML = `
       <div class="email-frame" style="border-left:3px solid #F87171;">
         <div class="email-header">
-          <div class="email-from" style="color:#F87171;font-weight:700;">⚠️ 可疑頁面</div>
+          <div class="email-from" style="color:#F87171;font-weight:700;">⚠️ ${currentLang === 'en' ? 'Suspicious Page' : '可疑頁面'}</div>
+        <div class="email-subject">${currentLang === 'en' ? '⚠️ Security Warning' : '⚠️ 安全警告'}</div>
         </div>
-        <div class="email-body" style="white-space:pre-line;font-size:0.85rem;">${escHtml(v.content || '')}</div>
+        <div class="email-body" style="white-space:pre-line;font-size:0.85rem;">${escHtml(tVisualField(v, 'content', 'visualContentFallback'))}</div>
       </div>`;
   } else if (v.type === 'safe_result') {
     visualEl.innerHTML = `
       <div class="email-frame" style="border-left:3px solid #34D399;">
         <div class="email-header">
-          <div class="email-from" style="color:#34D399;font-weight:700;">✅ 核實結果</div>
+          <div class="email-from" style="color:#34D399;font-weight:700;">${t('sceneTypeResult')}</div>
         </div>
-        <div class="email-body" style="white-space:pre-line;font-size:0.9rem;">${escHtml(v.content || '')}</div>
+        <div class="email-body" style="white-space:pre-line;font-size:0.9rem;">${escHtml(tVisualField(v, 'content', 'visualContentFallback'))}</div>
       </div>`;
   } else {
     visualEl.innerHTML = '';
@@ -569,7 +636,8 @@ function renderChoices(scene) {
   (scene.choices || []).forEach(choice => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
-    btn.textContent = choice.text;
+    btn.dataset.choiceId = choice.id;
+    btn.textContent = tText(choice);
     btn.onclick = () => handleChoice(choice, scene);
     container.appendChild(btn);
   });
@@ -578,14 +646,15 @@ function renderChoices(scene) {
 // ===== 處理選擇 =====
 function handleChoice(choice, scene) {
   clearCountdown();
+  const choiceText = tText(choice);
   document.querySelectorAll('.choice-btn').forEach(b => {
     b.disabled = true;
-    if (b.textContent === choice.text) b.classList.add('selected');
+    if (b.textContent === choiceText) b.classList.add('selected');
   });
 
   state.choiceLog.push({
-    sceneId: scene.id, choiceId: choice.id, choiceText: choice.text,
-    effects: choice.effects || {}, feedback: choice.feedback || '',
+    sceneId: scene.id, choiceId: choice.id, choiceText: choiceText,
+    effects: choice.effects || {}, feedback: tField(choice, 'feedback'),
     feedbackType: choice.feedbackType || 'mid'
   });
 
@@ -595,11 +664,11 @@ function handleChoice(choice, scene) {
     state.goodChoices++;
     state.streakGood++;
     const xpGain = 30 + (state.streakGood > 1 ? 10 * (state.streakGood - 1) : 0);
-    addXP(Math.min(xpGain, 80), feedType === 'good' ? '✅ 好選擇！' : '');
+    addXP(Math.min(xpGain, 80), feedType === 'good' ? t('xpGoodChoice') : '');
   } else if (feedType === 'bad') {
     state.badChoices++;
     state.streakGood = 0;
-    addXP(5, '學到了！');
+    addXP(5, t('xpGain'));
   } else {
     state.streakGood = 0;
     addXP(15, '');
@@ -610,9 +679,10 @@ function handleChoice(choice, scene) {
   updateAllStatBars();
   saveGame();  // 每次選擇後自動保存
 
-  if (choice.feedback) {
+  const localizedFeedback = tField(choice, 'feedback');
+  if (localizedFeedback) {
     const fb = document.getElementById('feedbackBox');
-    fb.textContent = choice.feedback;
+    fb.textContent = localizedFeedback;
     fb.className = 'feedback-box ' + feedType;
     fb.style.display = 'block';
   }
@@ -621,7 +691,7 @@ function handleChoice(choice, scene) {
     const nextId = choice.nextSceneId;
     if (nextId === '__ending__') triggerEnding();
     else renderScene(nextId);
-  }, choice.feedback ? 1800 : 500);
+  }, localizedFeedback ? 1800 : 500);
 }
 
 // ===== 應用數值效果 =====
@@ -635,6 +705,7 @@ function applyEffects(effects) {
 
 // ===== 更新狀態欄 =====
 function updateAllStatBars() {
+  normalizeLanguagePressureBar();
   const stats = state.playerStats;
   const barMap = {
     money: 'money', alertness: 'alertness', stress: 'stress',
@@ -702,9 +773,9 @@ function renderEnding(ending) {
   const grade = getScoreGrade(finalScore);
 
   document.getElementById('endingIcon').textContent = ending.icon;
-  document.getElementById('endingTitle').textContent = ending.title;
+  document.getElementById('endingTitle').textContent = tField(ending, 'title');
   document.getElementById('endingTitle').style.color = ending.color;
-  document.getElementById('endingDesc').textContent = ending.description;
+  document.getElementById('endingDesc').textContent = tField(ending, 'description');
 
   // 分數展示
   const scoreEl = document.getElementById('endingScore');
@@ -712,8 +783,8 @@ function renderEnding(ending) {
     scoreEl.innerHTML = `
       <div class="score-display">
         <div class="score-grade" style="color:${grade.color}">${grade.icon} ${grade.grade}</div>
-        <div class="score-num">${finalScore} <span class="score-unit">分</span></div>
-        <div class="score-level">${levelIcons[state.level-1]} ${levelTitles[state.level-1]}  ·  ${state.xp} XP</div>
+        <div class="score-num">${finalScore} <span class="score-unit">${t('endingScoreUnit')}</span></div>
+        <div class="score-level">${levelIcons[state.level-1]} ${getLevelTitle()}  ·  ${state.xp} XP</div>
       </div>`;
   }
 
@@ -721,10 +792,10 @@ function renderEnding(ending) {
   const statsEl = document.getElementById('endingFinalStats');
   const s = state.playerStats;
   const chips = [
-    { label: '💰 金錢', val: s.money, good: s.money >= 70, bad: s.money <= 30 },
-    { label: '👁️ 警覺', val: s.alertness, good: s.alertness >= 65, bad: s.alertness < 40 },
-    { label: '📋 資訊', val: s.information, good: s.information >= 60, bad: s.information < 35 },
-    { label: '⚠️ 風險', val: s.riskScore, good: s.riskScore <= 30, bad: s.riskScore >= 60 }
+    { label: t('statMoney'), val: s.money, good: s.money >= 70, bad: s.money <= 30 },
+    { label: t('statAlertness'), val: s.alertness, good: s.alertness >= 65, bad: s.alertness < 40 },
+    { label: t('statInfo'), val: s.information, good: s.information >= 60, bad: s.information < 35 },
+    { label: t('statRisk'), val: s.riskScore, good: s.riskScore <= 30, bad: s.riskScore >= 60 }
   ];
   statsEl.innerHTML = chips.map(c => `
     <div class="stat-chip ${c.bad ? 'bad' : c.good ? 'good' : 'mid'}">
@@ -737,19 +808,20 @@ function renderEnding(ending) {
     if (state.achievements.length > 0) {
       const achDefs = state.achievements.map(id => achievementDefs.find(a => a.id === id)).filter(Boolean);
       achEl.innerHTML = `
-        <h4>🏅 本局成就</h4>
+        <h4>${t('endingAchievements')}</h4>
         <div class="ach-list">
-          ${achDefs.map(a => `<div class="ach-badge"><span>${a.icon}</span><span>${a.name}</span></div>`).join('')}
+          ${achDefs.map(a => `<div class="ach-badge"><span>${a.icon}</span><span>${tField(a, 'name')}</span></div>`).join('')}
         </div>`;
     } else {
-      achEl.innerHTML = `<p class="no-ach">這局沒有解鎖成就，再玩一次試試！</p>`;
+      achEl.innerHTML = `<p class="no-ach">${t('endingNoAchievement')}</p>`;
     }
   }
 
   const adviceEl = document.getElementById('endingAdvice');
+  const endingAdvice = getCurrentLang() === 'en' && !ending.adviceEn ? t('endingAdviceItems') : tField(ending, 'advice');
   adviceEl.innerHTML = `
-    <h4>💡 反詐小知識</h4>
-    <ul>${ending.advice.map(a => `<li>${a}</li>`).join('')}</ul>`;
+    <h4>${t('endingAdvice')}</h4>
+    <ul>${endingAdvice.map(a => `<li>${a}</li>`).join('')}</ul>`;
 
   // 結局收集進度
   const progressEl = document.getElementById('endingProgress');
@@ -763,8 +835,8 @@ function renderEnding(ending) {
 // ===== 反詐回顧頁 =====
 function renderReview() {
   const scenario = state.currentScenario;
-  const identity = identityNames[state.playerIdentity] || state.playerIdentity;
-  const region = regionNames[state.currentRegion] || state.currentRegion;
+  const identity = getIdentityName(state.playerIdentity);
+  const region = getRegionName(state.currentRegion);
   const s = state.playerStats;
 
   let worstChoice = null, bestChoice = null;
@@ -775,55 +847,88 @@ function renderReview() {
     if (dangerScore > worstScore) { worstScore = dangerScore; worstChoice = log; }
     if (dangerScore < bestScore) { bestScore = dangerScore; bestChoice = log; }
   }
+  const localizedWorstChoice = worstChoice ? findScenarioChoice(worstChoice.choiceId) : null;
+  const localizedBestChoice = bestChoice ? findScenarioChoice(bestChoice.choiceId) : null;
 
   const reviewHtml = `
     <div class="review-card">
-      <h4>🎮 本局資料</h4>
-      <p><strong>身份：</strong>${identity}</p>
-      <p><strong>地區：</strong>${region}</p>
-      <p><strong>遇到的騙局：</strong>${scenario ? scenario.scamType : '—'}</p>
-      <p><strong>好選擇：</strong>${state.goodChoices} 次 &nbsp;|&nbsp; <strong>危險選擇：</strong>${state.badChoices} 次</p>
-      <p><strong>獲得 XP：</strong>${state.xp} &nbsp;|&nbsp; <strong>等級：</strong>${levelTitles[state.level-1]}</p>
+      <h4>${t('reviewGameData')}</h4>
+      <p><strong>${t('reviewIdentity')}</strong>${identity}</p>
+      <p><strong>${t('reviewRegion')}</strong>${region}</p>
+      <p><strong>${t('reviewScamType')}</strong>${scenario ? tField(scenario, 'scamType') : '—'}</p>
+      <p><strong>${t('reviewGoodChoices')}</strong>${state.goodChoices} ${t('reviewBadChoices')} &nbsp;|&nbsp; <strong>${t('reviewBadChoicesLabel')}</strong>${state.badChoices} ${t('reviewBadChoices')}</p>
+      <p><strong>${t('reviewXP')}</strong>${state.xp} &nbsp;|&nbsp; <strong>${t('reviewLevel')}</strong>${getLevelTitle()}</p>
     </div>
 
     <div class="review-card">
-      <h4>⚠️ 這局的詐騙紅旗</h4>
+      <h4>${t('reviewRedFlags')}</h4>
       <ul>
-        ${(scenario && scenario.redFlags || []).map(f => `<li>${f}</li>`).join('')}
+        ${(scenario ? tField(scenario, 'redFlags') : []).map(f => `<li>${f}</li>`).join('')}
       </ul>
     </div>
 
     <div class="review-card">
-      <h4>🔍 你的選擇分析</h4>
+      <h4>${t('reviewChoiceAnalysis')}</h4>
       ${worstChoice ? `
-        <p style="margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);">最危險的一關：</p>
-        <div class="review-highlight">「${worstChoice.choiceText}」<br><small>${worstChoice.feedback || ''}</small></div>
+        <p style="margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);">${t('reviewWorstChoice')}</p>
+        <div class="review-highlight">「${localizedWorstChoice ? tText(localizedWorstChoice) : worstChoice.choiceText}」<br><small>${localizedWorstChoice ? tField(localizedWorstChoice, 'feedback') : (worstChoice.feedback || '')}</small></div>
       ` : ''}
       ${bestChoice && bestChoice !== worstChoice ? `
-        <p style="margin-top:10px;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);">最漂亮的操作：</p>
-        <div class="review-good">「${bestChoice.choiceText}」<br><small>${bestChoice.feedback || ''}</small></div>
+        <p style="margin-top:10px;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);">${t('reviewBestChoice')}</p>
+        <div class="review-good">「${localizedBestChoice ? tText(localizedBestChoice) : bestChoice.choiceText}」<br><small>${localizedBestChoice ? tField(localizedBestChoice, 'feedback') : (bestChoice.feedback || '')}</small></div>
       ` : ''}
     </div>
 
     <div class="review-card">
-      <h4>✅ 正確查證方式</h4>
+      <h4>${t('reviewVerifyMethod')}</h4>
       <ul>
-        ${(scenario && scenario.officialChannels || []).map(c => `<li>${c}</li>`).join('')}
+        ${(scenario ? tField(scenario, 'officialChannels') : []).map(c => `<li>${c}</li>`).join('')}
       </ul>
     </div>
 
     <div class="review-card">
-      <h4>📊 最終數值</h4>
-      <p>💰 金錢：${Math.round(s.money)} &nbsp;|&nbsp; 👁️ 警覺：${Math.round(s.alertness)} &nbsp;|&nbsp; 📋 資訊：${Math.round(s.information)}</p>
-      <p>⚠️ 風險分：${Math.round(s.riskScore)} &nbsp;|&nbsp; 😰 壓力：${Math.round(s.stress)}</p>
+      <h4>${t('reviewFinalStats')}</h4>
+      <p>${t('reviewMoney')}${Math.round(s.money)} &nbsp;|&nbsp; ${t('reviewAlertness')}${Math.round(s.alertness)} &nbsp;|&nbsp; ${t('reviewInfo')}${Math.round(s.information)}</p>
+      <p>${t('reviewRisk')}${Math.round(s.riskScore)} &nbsp;|&nbsp; ${t('reviewStress')}${Math.round(s.stress)}</p>
     </div>
 
     <div class="review-reminder">
-      <p>💡 越是催你立刻操作，越要先停下來查。<br>真正的官方機構，不怕你核實。</p>
+      <p>${t('reviewReminder')}</p>
     </div>
   `;
 
   document.getElementById('reviewContent').innerHTML = reviewHtml;
+}
+
+function findScenarioChoice(choiceId) {
+  if (!choiceId || !state.currentScenario) return null;
+  for (const scene of state.currentScenario.scenes || []) {
+    const choice = (scene.choices || []).find(item => item.id === choiceId);
+    if (choice) return choice;
+  }
+  return null;
+}
+
+// 語言切換後只重繪目前頁面的文案，不改變玩家進度或分數。
+function refreshLocalizedContent() {
+  const activeScreen = document.querySelector('.screen.active');
+  if (!activeScreen) return;
+
+  if (activeScreen.id === 'introScreen' && state.playerIdentity && state.currentRegion) {
+    buildIntroScreen();
+  } else if (activeScreen.id === 'gameScreen' && state.currentScenario && state.currentSceneId) {
+    document.getElementById('scenarioTitle').textContent = tField(state.currentScenario, 'title');
+    updateXPBar();
+    updateStageDots(state.sceneCount);
+    renderScene(state.currentSceneId, { countProgress: false, preserveCountdown: true });
+  } else if (activeScreen.id === 'endingScreen' && state.currentScenario) {
+    renderEnding(determineEnding());
+  } else if (activeScreen.id === 'reviewScreen') {
+    renderReview();
+  }
+
+  const overlay = document.getElementById('endingCollectionOverlay');
+  if (overlay && overlay.style.display !== 'none') showEndingCollection();
 }
 
 // ===== 重新開始 =====
@@ -877,9 +982,10 @@ function continueGame() {
   // 恢復 UI
   updateAllStatBars();
   updateXPBar();
-  document.getElementById('scenarioTitle').textContent = state.currentScenario.title;
+  updateStageDots(state.sceneCount);
+  document.getElementById('scenarioTitle').textContent = tField(state.currentScenario, 'title');
   showScreen('gameScreen');
-  renderScene(state.currentSceneId);
+  renderScene(state.currentSceneId, { countProgress: false });
 }
 
 // ===== 顯示結局收集頁 =====
@@ -887,7 +993,7 @@ function showEndingCollection() {
   const overlay = document.getElementById('endingCollectionOverlay');
   const content = document.getElementById('endingCollectionContent');
   if (!overlay || !content) return;
-  content.innerHTML = getEndingProgressHtml();
+  content.innerHTML = `<h2 style="text-align:center;margin-bottom:20px;font-size:1.3rem;">${t('endingCollectionTitle')}</h2>` + getEndingProgressHtml();
   overlay.style.display = 'flex';
 }
 

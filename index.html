@@ -3,10 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>別急先查證 — 反詐騙闖關遊戲</title>
-  <link rel="stylesheet" href="style.css">
+  <title data-i18n="gameTitle">別急先查證 — 反詐騙闖關遊戲</title>
+  <link rel="stylesheet" href="style.css?v=20260712-5">
 </head>
 <body>
+
+<!-- ===== 語言切換 ===== -->
+<div class="language-toolbar">
+  <span class="lang-label" id="langLabel" data-i18n="langLabel">語言</span>
+  <div class="lang-options" role="group" aria-label="Language">
+    <button class="lang-option" type="button" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+    <button class="lang-option" type="button" data-lang="en" onclick="setLanguage('en')">English</button>
+  </div>
+</div>
 
 <!-- ===== 浮動提示（XP、成就）===== -->
 <div class="xp-toast" id="xpToast"></div>
@@ -17,18 +26,18 @@
   <div class="start-bg">
     <div class="start-content">
       <div class="game-logo">🛡️</div>
-      <h1 class="game-title">別急，先查證</h1>
-      <p class="game-subtitle">反詐騙互動闖關遊戲</p>
-      <p class="game-desc">騙子最怕你花3秒鐘查一查。<br>在真實情境中做選擇——你能識破幾關？</p>
+      <h1 class="game-title" data-i18n="gameTitle">別急，先查證</h1>
+      <p class="game-subtitle" data-i18n="gameSubtitle">反詐騙互動闖關遊戲</p>
+      <p class="game-desc" data-i18n="gameDesc">騙子最怕你花3秒鐘查一查。<br>在真實情境中做選擇——你能識破幾關？</p>
       <div class="game-tags">
-        <span class="tag">🎮 6關闖關模式</span>
-        <span class="tag">⚡ XP 成就系統</span>
-        <span class="tag">🌍 5大地區場景</span>
+        <span class="tag" data-i18n="tag6Levels">🎮 6關闖關模式</span>
+        <span class="tag" data-i18n="tagXP">⚡ XP 成就系統</span>
+        <span class="tag" data-i18n="tag5Regions">🌍 5大地區場景</span>
       </div>
-      <button class="btn-primary" onclick="showScreen('identityScreen')">開始闖關！</button>
-      <button class="btn-secondary" id="continueBtn" onclick="continueGame()" style="display:none;margin-top:8px;">▶ 繼續上次進度</button>
-      <button class="btn-text" onclick="showEndingCollection()" id="endingCollectionBtn" style="display:none;margin-top:8px;">🏅 查看已解鎖結局</button>
-      <p class="game-note">免登入 · 約 12 分鐘 · 新生必玩</p>
+      <button class="btn-primary" onclick="showScreen('identityScreen')" data-i18n="btnStart">開始闖關！</button>
+      <button class="btn-secondary" id="continueBtn" onclick="continueGame()" style="display:none;margin-top:8px;" data-i18n="btnContinue">▶ 繼續上次進度</button>
+      <button class="btn-text" onclick="showEndingCollection()" id="endingCollectionBtn" style="display:none;margin-top:8px;" data-i18n="btnViewEndings">🏅 查看已解鎖結局</button>
+      <p class="game-note" data-i18n="gameNote">免登入 · 約 12 分鐘 · 新生必玩</p>
     </div>
   </div>
 </div>
@@ -37,29 +46,29 @@
 <div id="identityScreen" class="screen">
   <div class="selection-container">
     <div class="selection-header">
-      <div class="step-indicator">第 1 步 / 2</div>
-      <h2>選擇你的角色</h2>
-      <p>不同身份會遇到不同的騙局套路，影響初始屬性</p>
+      <div class="step-indicator" data-i18n="step1of2">第 1 步 / 2</div>
+      <h2 data-i18n="selectRole">選擇你的角色</h2>
+      <p data-i18n="selectRoleDesc">不同身份會遇到不同的騙局套路，影響初始屬性</p>
     </div>
     <div class="identity-cards">
       <div class="identity-card" onclick="selectIdentity('mainland_student')">
         <div class="card-icon">🎓</div>
-        <h3>中國大陸學生</h3>
-        <p>微信、支付寶、快遞、電商是日常。在境外可能面對語言壓力和身份焦慮，是騙子最愛盯上的目標。</p>
+        <h3 data-i18n="identityMainland">中國大陸學生</h3>
+        <p data-i18n="identityMainlandDesc">微信、支付寶、快遞、電商是日常。在境外可能面對語言壓力和身份焦慮，是騙子最愛盯上的目標。</p>
         <div class="card-tags">
-          <span>微信/支付寶</span>
-          <span>快遞/電商</span>
-          <span>校園環境</span>
+          <span data-i18n="identityMainlandTag1">微信/支付寶</span>
+          <span data-i18n="identityMainlandTag2">快遞/電商</span>
+          <span data-i18n="identityMainlandTag3">校園環境</span>
         </div>
       </div>
       <div class="identity-card" onclick="selectIdentity('hmt_student')">
         <div class="card-icon">🏫</div>
-        <h3>港澳台學生</h3>
-        <p>熟悉本地銀行、LINE 和學校電郵。但假銀行短訊、假客服電話依然可以偽裝得非常真實。</p>
+        <h3 data-i18n="identityHMT">港澳台學生</h3>
+        <p data-i18n="identityHMTDesc">熟悉本地銀行、LINE 和學校電郵。但假銀行短訊、假客服電話依然可以偽裝得非常真實。</p>
         <div class="card-tags">
-          <span>WhatsApp/LINE</span>
-          <span>銀行 App</span>
-          <span>學校電郵</span>
+          <span data-i18n="identityHMTTag1">WhatsApp/LINE</span>
+          <span data-i18n="identityHMTTag2">銀行 App</span>
+          <span data-i18n="identityHMTTag3">學校電郵</span>
         </div>
       </div>
     </div>
@@ -70,43 +79,43 @@
 <div id="regionScreen" class="screen">
   <div class="selection-container">
     <div class="selection-header">
-      <div class="step-indicator">第 2 步 / 2</div>
-      <h2>選擇你的地圖</h2>
-      <p>不同地區解鎖不同的騙局劇情，每局 6 關</p>
+      <div class="step-indicator" data-i18n="step2of2">第 2 步 / 2</div>
+      <h2 data-i18n="selectMap">選擇你的地圖</h2>
+      <p data-i18n="selectMapDesc">不同地區解鎖不同的騙局劇情，每局 6 關</p>
     </div>
     <div class="region-cards">
       <div class="region-card" onclick="selectRegion('mainland_china')">
         <span class="card-icon">🏙️</span>
-        <h3>中國大陸</h3>
-        <p>快遞釣魚、冒充客服</p>
-        <span class="region-tag">🆓 基礎關卡</span>
+        <h3 data-i18n="regionMainland">中國大陸</h3>
+        <p data-i18n="regionMainlandDesc">快遞釣魚、冒充客服</p>
+        <span class="region-tag" data-i18n="regionMainlandTag">🆓 基礎關卡</span>
       </div>
       <div class="region-card" onclick="selectRegion('hong_kong_macao')">
         <span class="card-icon">🌆</span>
-        <h3>港澳</h3>
-        <p>假銀行短訊、釣魚網站</p>
-        <span class="region-tag">💳 金融場景</span>
+        <h3 data-i18n="regionHK">港澳</h3>
+        <p data-i18n="regionHKDesc">假銀行短訊、釣魚網站</p>
+        <span class="region-tag" data-i18n="regionHKTag">💳 金融場景</span>
       </div>
       <div class="region-card" onclick="selectRegion('taiwan')">
         <span class="card-icon">🏝️</span>
-        <h3>台灣</h3>
-        <p>ATM 解除分期詐騙</p>
-        <span class="region-tag">🏧 高壓場景</span>
+        <h3 data-i18n="regionTaiwan">台灣</h3>
+        <p data-i18n="regionTaiwanDesc">ATM 解除分期詐騙</p>
+        <span class="region-tag" data-i18n="regionTaiwanTag">🏧 高壓場景</span>
       </div>
       <div class="region-card" onclick="selectRegion('western_countries')">
         <span class="card-icon">✈️</span>
-        <h3>歐美</h3>
-        <p>假移民局電話詐騙</p>
-        <span class="region-tag">🌐 語言挑戰</span>
+        <h3 data-i18n="regionWest">歐美</h3>
+        <p data-i18n="regionWestDesc">假移民局電話詐騙</p>
+        <span class="region-tag" data-i18n="regionWestTag">🌐 語言挑戰</span>
       </div>
       <div class="region-card" onclick="selectRegion('southeast_asia')">
         <span class="card-icon">🌴</span>
-        <h3>東南亞</h3>
-        <p>旅遊訂房釣魚詐騙</p>
-        <span class="region-tag">🧳 旅行場景</span>
+        <h3 data-i18n="regionSEA">東南亞</h3>
+        <p data-i18n="regionSEADesc">旅遊訂房釣魚詐騙</p>
+        <span class="region-tag" data-i18n="regionSEATag">🧳 旅行場景</span>
       </div>
     </div>
-    <button class="btn-back" onclick="showScreen('identityScreen')">← 返回</button>
+    <button class="btn-back" onclick="showScreen('identityScreen')" data-i18n="btnBack">← 返回</button>
   </div>
 </div>
 
@@ -114,7 +123,7 @@
 <div id="introScreen" class="screen">
   <div class="intro-container">
     <div class="intro-badge" id="introBadge"></div>
-    <h2 id="introTitle">你的冒險開始了！</h2>
+    <h2 id="introTitle" data-i18n="introTitle">你的冒險開始了！</h2>
     <div class="intro-text" id="introText"></div>
 
     <!-- 關卡預覽 -->
@@ -125,14 +134,14 @@
         <span class="mission-step">🔒 關卡 3</span>
         <span class="mission-step">🔒 關卡 4</span>
       </div>
-      <p class="mission-hint">完成所有關卡，解鎖你的等級和成就！</p>
+      <p class="mission-hint" data-i18n="missionPreview">完成所有關卡，解鎖你的等級和成就！</p>
     </div>
 
     <div class="intro-stats">
-      <h4>初始屬性加成</h4>
+      <h4 data-i18n="initialStats">初始屬性加成</h4>
       <div class="mini-stats" id="miniStats"></div>
     </div>
-    <button class="btn-primary" onclick="startGame()">出發！→</button>
+    <button class="btn-primary" onclick="startGame()" data-i18n="btnGo">出發！→</button>
   </div>
 </div>
 
@@ -176,43 +185,43 @@
       </div>
 
       <div class="stat-item">
-        <div class="stat-label">💰 金錢</div>
+        <div class="stat-label" data-i18n="statMoney">💰 金錢</div>
         <div class="stat-bar-wrap"><div class="stat-bar money-bar" id="bar-money"></div></div>
         <div class="stat-val" id="val-money">100</div>
       </div>
       <div class="stat-item">
-        <div class="stat-label">👁️ 警覺</div>
+        <div class="stat-label" data-i18n="statAlertness">👁️ 警覺</div>
         <div class="stat-bar-wrap"><div class="stat-bar alert-bar" id="bar-alertness"></div></div>
         <div class="stat-val" id="val-alertness">50</div>
       </div>
       <div class="stat-item">
-        <div class="stat-label">😰 壓力</div>
+        <div class="stat-label" data-i18n="statStress">😰 壓力</div>
         <div class="stat-bar-wrap"><div class="stat-bar stress-bar" id="bar-stress"></div></div>
         <div class="stat-val" id="val-stress">20</div>
       </div>
       <div class="stat-item">
-        <div class="stat-label">📋 資訊</div>
+        <div class="stat-label" data-i18n="statInfo">📋 資訊</div>
         <div class="stat-bar-wrap"><div class="stat-bar info-bar" id="bar-information"></div></div>
         <div class="stat-val" id="val-information">30</div>
       </div>
       <div class="stat-item risk-stat">
-        <div class="stat-label">⚠️ 風險分</div>
+        <div class="stat-label" data-i18n="statRisk">⚠️ 風險分</div>
         <div class="stat-bar-wrap"><div class="stat-bar risk-bar" id="bar-riskScore"></div></div>
         <div class="stat-val" id="val-riskScore">0</div>
       </div>
       <div class="stat-divider"></div>
       <div class="stat-item">
-        <div class="stat-label">🏠 本地熟悉</div>
+        <div class="stat-label" data-i18n="statLocal">🏠 本地熟悉</div>
         <div class="stat-bar-wrap"><div class="stat-bar local-bar" id="bar-localFamiliarity"></div></div>
         <div class="stat-val" id="val-localFamiliarity">50</div>
       </div>
       <div class="stat-item">
-        <div class="stat-label">🔤 語言壓力</div>
-        <div class="stat-bar-wrap"><div class="stat-bar lang-bar" id="bar-languagePressure"></div></div>
+        <div class="stat-label" data-i18n="statLang">🔤 語言壓力</div>
+        <div class="stat-bar-wrap"><div class="stat-bar language-pressure-bar" id="bar-languagePressure"></div></div>
         <div class="stat-val" id="val-languagePressure">20</div>
       </div>
       <div class="stat-item">
-        <div class="stat-label">🪪 身份焦慮</div>
+        <div class="stat-label" data-i18n="statIdentity">🪪 身份焦慮</div>
         <div class="stat-bar-wrap"><div class="stat-bar id-bar" id="bar-identityAnxiety"></div></div>
         <div class="stat-val" id="val-identityAnxiety">20</div>
       </div>
@@ -226,7 +235,7 @@
         <div class="scene-text" id="sceneText"></div>
         <!-- 倒計時區域 -->
         <div class="countdown-wrapper" id="countdownWrapper" style="display:none;">
-          <span class="countdown-label">⏱ 限時選擇</span>
+          <span class="countdown-label" data-i18n="countdownLabel">⏱ 限時選擇</span>
           <div class="countdown-bar-track">
             <div class="countdown-bar" id="countdownBar" style="width:100%"></div>
           </div>
@@ -262,8 +271,8 @@
     <div class="ending-progress" id="endingProgress"></div>
 
     <div class="ending-buttons">
-      <button class="btn-primary" onclick="renderReview(); showScreen('reviewScreen')">📋 查看回顧</button>
-      <button class="btn-secondary" onclick="restartGame()">🔄 再玩一次</button>
+      <button class="btn-primary" onclick="renderReview(); showScreen('reviewScreen')" data-i18n="btnReview">📋 查看回顧</button>
+      <button class="btn-secondary" onclick="restartGame()" data-i18n="btnReplay">🔄 再玩一次</button>
     </div>
   </div>
 </div>
@@ -271,10 +280,10 @@
 <!-- ===== 反詐回顧頁 ===== -->
 <div id="reviewScreen" class="screen">
   <div class="review-container">
-    <h2>🔍 反詐回顧</h2>
+    <h2 data-i18n="reviewTitle">🔍 反詐回顧</h2>
     <div class="review-content" id="reviewContent"></div>
     <div class="review-buttons">
-      <button class="btn-primary" onclick="restartGame()">🔄 再玩一次</button>
+      <button class="btn-primary" onclick="restartGame()" data-i18n="btnReplay2">🔄 再玩一次</button>
     </div>
   </div>
 </div>
@@ -284,7 +293,8 @@
   <div class="overlay-content" id="endingCollectionContent"></div>
 </div>
 
-<script src="data.js"></script>
-<script src="game.js"></script>
+<script src="i18n.js?v=20260712-5"></script>
+<script src="data.js?v=20260712-5"></script>
+<script src="game.js?v=20260712-5"></script>
 </body>
 </html>
